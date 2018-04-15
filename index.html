@@ -1,89 +1,40 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>TVP SERIALE</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<meta name="author" content="mytvonline">
+<meta name="generator" content="Web Page Maker">
+
+<body oncontextmenu="return false" ondragstart="return false" onselectstart="return false">
+</head>
+<body>
+
+ <script src="https://code.jquery.com/jquery-1.11.3.js"></script>
+  <link href="//vjs.zencdn.net/5.11/video-js.css" rel="stylesheet" type="text/css" />
+  <script src="//vjs.zencdn.net/5.11/video.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/videojs-contrib-hls/5.4.0/videojs-contrib-hls.min.js"></script>
+</head>
+<body>
+
+  <video id='example-video' width=728 height=400 class="video-js vjs-default-skin" controls>
+  </video>
+  <script>
+    var player = videojs('example-video');
+        player.src({
+          src: 'https://www.mytvonline.org/east/tvpserial/index.m3u8',
+          type: 'application/x-mpegURL',
+          withCredentials: true
+    });
+  </script></div>
+
+<div id="html2" style="position:absolute; overflow:hidden; left:0px; top:524px; width:728px; height:60px; z-index:2">
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="//platform-api.sharethis.com/js/sharethis.js#property=5a6923b1344b890012fe77b6&product=custom-share-buttons"></script></div>
+
+<div id="html3" style="position:absolute; overflow:hidden; left:0px; top:32px; width:728px; height:90px; z-index:3">
+<iframe src="//rcm-na.amazon-adsystem.com/e/cm?o=15&p=48&l=ur1&category=electronics&banner=1JP4JR3QDVJVX3E3M9G2&f=ifr&linkID=55f7fb9d32248fb39f9dbe2bebd0d4cb&t=m025b-20&tracking_id=m025b-20" width="728" height="90" scrolling="no" border="0" marginwidth="0" style="border:none;" frameborder="0"></iframe></div>
 
 
- <item>
-<title>[COLOR blue]RS[/COLOR]IPTV [COLOR cyan]SERVER 1[/COLOR]</title>
-<link>rs</link>
-<externallink>http://rsiptv.x10host.com/RSIPTV/ES/1.txt</externallink>
-<thumbnail>http://icons.iconarchive.com/icons/custom-icon-design/all-country-flag/256/Spain-Flag-icon.png</thumbnail>
-<fanart>http://i.imgur.com/MdGItsB.png</fanart>
-<info>RSIPTV - Os Links são adquiridos através de uma busca livre pela Internet</info>
-</item>
- 
- 
- 
-<item>
-<title>[COLOR blue]RS[/COLOR]IPTV [COLOR cyan]SERVER 2[/COLOR]</title>
-<link>$doregex[makelist]</link>
-<regex>
-<name>makelist</name>
-<listrepeat><![CDATA[
-<title>[COLOR blue]RS[/COLOR]IPTV - [COLOR lime][makelist.param1][/COLOR]</title>
-<link>plugin://plugin.video.f4mTester/?streamtype=TSDOWNLOADER&amp;url=[makelist.param2].ts&amp;name=[COLOR blue]RS[/COLOR] IPTV - [makelist.param1]</link>
-<thumbnail>http://icons.iconarchive.com/icons/custom-icon-design/all-country-flag/256/Spain-Flag-icon.png</thumbnail>
-<fanart>http://i.imgur.com/MdGItsB.png</fanart>
-]]></listrepeat>
-<expres>#EXTINF:-.*?,(.*).*\n.*?(?=http|rtmp|rtsp|mms)(.*[\d|\w])</expres>
-<page>http://exabytetv.info/lista.m3u</page>
-<cookieJar></cookieJar>
-<thumbnail>http://icons.iconarchive.com/icons/custom-icon-design/all-country-flag/256/Spain-Flag-icon.png</thumbnail>
-<fanart>http://i.imgur.com/MdGItsB.png</fanart>
-</regex>
-<info>RSIPTV - Os Links são adquiridos através de uma busca livre pela Internet</info>
-</item>
-
-<item>
-<title>[COLOR blue]RS[/COLOR]IPTV [COLOR cyan]SERVER 3[/COLOR]</title>
-<link>$doregex[makelist]</link>
-<regex>
-<name>makelist</name>
-<listrepeat><![CDATA[
-<title>[COLOR blue]RS[/COLOR]IPTV - [makelist.param1]</title>
-<link>$doregex[url1]</link>
-<thumbnail>http://icons.iconarchive.com/icons/custom-icon-design/all-country-flag/256/Spain-Flag-icon.png</thumbnail>
-<fanart>http://i.imgur.com/MdGItsB.png</fanart>
-]]></listrepeat>
-<expres><![CDATA[<iframe name=.*?src="(.*?)" scro]]></expres>
-<page>http://www.mytvonline.org/espagnol.php</page>
-</regex>
-<regex>
-<name>url1</name>
-<listrepeat><![CDATA[
-<title>[COLOR blue]RS[/COLOR]IPTV - [url1.param3]</title>
-<link>$doregex[url2]</link>
-<thumbnail>[url1.param2]</thumbnail>
-]]></listrepeat>
-<expres><![CDATA[onclick=".*?'(.*?)','vide.*?img src="(.*?)" title="(.*?)"]]></expres>
-<page>http://www.mytvonline.org/[makelist.param1]</page>
-<cookieJar></cookieJar>
-</regex>
-<regex>
-<name>url2</name>
-<expres><![CDATA[file: "(.*?)"]]></expres>
-<page>[url1.param1]</page>
-<cookieJar></cookieJar>
-</regex>
-<thumbnail>http://icons.iconarchive.com/icons/custom-icon-design/all-country-flag/256/Spain-Flag-icon.png</thumbnail>
-<fanart>http://i.imgur.com/MdGItsB.png</fanart>
-<info>RSIPTV - Os Links são adquiridos através de uma busca livre pela Internet</info>
-</item>
-
- <item>
-<title>[COLOR blue]RS[/COLOR]IPTV [COLOR cyan]SERVER 4[/COLOR]</title>
-<link>rs</link>
-<externallink>http://rsiptv.x10host.com/RSIPTV/ES/sv1.txt</externallink>
-<thumbnail>http://icons.iconarchive.com/icons/custom-icon-design/all-country-flag/256/Spain-Flag-icon.png</thumbnail>
-<fanart>http://i.imgur.com/MdGItsB.png</fanart>
-<info>RSIPTV - Os Links são adquiridos através de uma busca livre pela Internet</info>
-</item>
- 
- 
- 
- <item>
-<title>[COLOR blue]RS[/COLOR]IPTV [COLOR cyan]SERVER 5[/COLOR]</title>
-<link>rs</link>
-<externallink>http://rsiptv.x10host.com/RSIPTV/ES/2.txt</externallink>
-<thumbnail>http://icons.iconarchive.com/icons/custom-icon-design/all-country-flag/256/Spain-Flag-icon.png</thumbnail>
-<fanart>http://i.imgur.com/MdGItsB.png</fanart>
-<info>RSIPTV - Os Links são adquiridos através de uma busca livre pela Internet</info>
-</item>
+</body>
+</html>
