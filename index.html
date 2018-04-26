@@ -3,10 +3,28 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <script type="text/javascript" src="//bitmovin-a.akamaihd.net/bitmovin-player/stable/7/bitmovinplayer.js"></script>
+    <script type="text/javascript" src="https://bitmovin-a.akamaihd.net/bitmovin-player/stable/7/bitmovinplayer.js"></script>
 </head>
 <body>
 <div id="my-player"></div>
-<!-- Here will be the player setup script -->
+<script type="text/javascript">
+  var conf = {
+    key: "<LICENSE_KEY>",
+    source: {
+      dash: "//bitmovin-a.akamaihd.net/content/MI201109210084_1/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd",
+      hls: "//bitmovin-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8",
+      progressive: "//bitmovin-a.akamaihd.net/content/MI201109210084_1/MI201109210084_mpeg-4_hd_high_1080p25_10mbits.mp4",
+      poster: "//bitmovin-a.akamaihd.net/content/MI201109210084_1/poster.jpg"
+    }
+  };
+
+  var player = bitmovin.player('my-player');
+
+  player.setup(conf).then(function(playerInstance) {
+    console.log('Successfully created Bitmovin Player instance');
+  }, function(reason) {
+    console.log('Error while creating Bitmovin Player instance');
+  });
+</script>
 </body>
 </html>
