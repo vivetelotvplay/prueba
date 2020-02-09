@@ -1,13 +1,11 @@
-<script>
-function delayRedirect(){
-    document.getElementById('delayMsg').innerHTML = 'Please wait you'll be redirected after <span id="countDown">5</span> seconds....';
-    var count = 5;
-    setInterval(function(){
-        count--;
-        document.getElementById('countDown').innerHTML = count;
-        if (count == 0) {
-            window.location = 'https://www.google.com'; 
-        }
-    },1000);
-}
-</script
+<html> 
+<head> 
+<meta http-equiv="Refresh" 
+content="10;url=http://norfipc.com/pagina.html" /> 
+</head>  
+<body>
+¡Ahora estamos en otra dirección! Serás dirigido automáticamente 
+en diez segundos. Si lo deseas puedes acceder a la nueva dirección 
+dando un clic en el siguiente vínculo: 
+<a href="http://norfipc.com/index.html">http://norfipc.com/</a>
+</html>
