@@ -37,23 +37,63 @@
                 width: 300px;
             }
         }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 12px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2 class="text-center">Generador de Facturas</h2>
+        
         <div id="factura-encabezado" class="mb-4">
             <p style="text-align: center; font-size: 2em;"><strong>VIVELO TVG</strong></p>
-            <p style="text-align: center; font-size: 1.2em;">Av. San Vicente (Detras del Bravo), Calle 13 / 2do Nivel / #19</p>
-
-            <p style="text-align: left; font-size: 1em;"><strong>RNC:</strong> 133-26115-4</p>
-            <p style="text-align: left; font-size: 1em;"><strong>Número de Factura:</strong> <span id="numeroFactura">001</span></p>
-            <p style="text-align: left; font-size: 1em;"><strong>NCF:</strong> <span id="ncfFactura">A000000001</span></p>
+            
+            <div class="mb-3">
+                <label for="numeroFactura" class="form-label">Número de Factura:</label>
+                <input type="text" id="numeroFactura" class="form-control no-print" value="001">
+            </div>
+            <div class="mb-3">
+                <label for="ncfFactura" class="form-label">NCF:</label>
+                <input type="text" id="ncfFactura" class="form-control no-print" value="A000000001">
+            </div>
             <p style="text-align: left; font-size: 1em;"><strong>Fecha:</strong> <span id="fechaFactura"></span></p>
         </div>
         <div class="mb-3">
             <label for="codigoProducto" class="form-label">Escanear Código del Producto:</label>
             <input type="text" class="form-control" id="codigoProducto" placeholder="Escanee el código aquí">
+        </div>
+        <div class="mb-3">
+            <label for="cantidadProducto" class="form-label">Cantidad:</label>
+            <input type="number" class="form-control" id="cantidadProducto" placeholder="Ingrese la cantidad">
         </div>
         <table class="table table-bordered">
             <thead>
@@ -71,6 +111,29 @@
         </table>
         <div class="text-end">
             <button id="generarFactura" class="btn btn-primary">Generar Factura</button>
+            <button id="verInventario" class="btn btn-secondary">Inventario</button>
+        </div>
+    </div>
+
+    <!-- Modal Inventario -->
+    <div id="modalInventario" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModalInventario">&times;</span>
+            <h5>Inventario de Productos</h5>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Descripción</th>
+                        <th>Cantidad</th>
+                        <th>Costo</th>
+                        <th>Precio</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaInventario">
+                    <!-- Inventario aparecerá aquí -->
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -84,42 +147,76 @@
 
     <script>
     document.addEventListener("DOMContentLoaded", function () {
-        let numeroFactura = 1;
-        const ncfInicial = "A000000001";
-        document.getElementById("ncfFactura").innerText = ncfInicial;
-
         const productos = {
-            "123": { descripcion: "Producto A", precio: 100 },
-            "124": { descripcion: "Producto B", precio: 200 },
-            "125": { descripcion: "Producto C", precio: 150 }
+            "123": { descripcion: "Producto A", precio: 100, costo: 50, cantidad: 10 },
+            "124": { descripcion: "Producto B", precio: 200, costo: 120, cantidad: 15 },
+            "125": { descripcion: "Producto C", precio: 150, costo: 80, cantidad: 8 }
         };
 
-        // Agregar productos a la tabla
+        // Agregar productos a la tabla al presionar Enter en el campo de código de producto
         document.getElementById("codigoProducto").addEventListener("keypress", function (e) {
             if (e.key === 'Enter') {
                 const codigo = e.target.value.trim();
-                agregarProducto(codigo);
+                const cantidad = parseInt(document.getElementById("cantidadProducto").value) || 1;
+                agregarProducto(codigo, cantidad);
                 e.target.value = ""; // Limpia el campo de entrada
+                document.getElementById("cantidadProducto").value = ""; // Limpia la cantidad
             }
         });
 
-        function agregarProducto(codigo) {
+        // Agregar productos a la tabla al presionar Enter en el campo de cantidad
+        document.getElementById("cantidadProducto").addEventListener("keypress", function (e) {
+            if (e.key === 'Enter') {
+                const codigo = document.getElementById("codigoProducto").value.trim();
+                const cantidad = parseInt(e.target.value) || 1;
+                agregarProducto(codigo, cantidad);
+                document.getElementById("codigoProducto").value = ""; // Limpia el campo de código de producto
+                e.target.value = ""; // Limpia el campo de cantidad
+            }
+        });
+
+        function agregarProducto(codigo, cantidad) {
             if (productos[codigo]) {
                 const tabla = document.getElementById("tablaProductos");
                 const producto = productos[codigo];
-                const itbis = producto.precio * 0.18;
-                const total = producto.precio + itbis;
+                let filaExistente = null;
 
-                // Crear fila para la tabla
-                const fila = document.createElement("tr");
-                fila.innerHTML = `
-                    <td>${producto.descripcion}</td>
-                    <td>1</td>
-                    <td style="text-align: right;">$${producto.precio.toFixed(2)}</td>
-                    <td style="text-align: right;">$${itbis.toFixed(2)}</td>
-                    <td style="text-align: right;">$${total.toFixed(2)}</td>
-                `;
-                tabla.appendChild(fila);
+                // Verificar si el producto ya está en la tabla
+                document.querySelectorAll("#tablaProductos tr").forEach(function (fila) {
+                    if (fila.children[0].innerText === producto.descripcion) {
+                        filaExistente = fila;
+                    }
+                });
+
+                if (filaExistente) {
+                    // Actualizar la cantidad y el total si el producto ya existe
+                    let cantidadActual = parseInt(filaExistente.children[1].innerText);
+                    cantidadActual += cantidad;
+                    filaExistente.children[1].innerText = cantidadActual;
+                    const subtotal = producto.precio * cantidadActual;
+                    const itbis = subtotal * 0.18;
+                    const total = subtotal + itbis;
+                    filaExistente.children[3].innerText = `$${itbis.toFixed(2)}`;
+                    filaExistente.children[4].innerText = `$${total.toFixed(2)}`;
+                    // Actualizar el inventario
+                    producto.cantidad -= cantidad;
+                } else {
+                    // Crear fila para la tabla si el producto no existe
+                    const itbis = producto.precio * cantidad * 0.18;
+                    const total = (producto.precio * cantidad) + itbis;
+
+                    const fila = document.createElement("tr");
+                    fila.innerHTML = `
+                        <td>${producto.descripcion}</td>
+                        <td>${cantidad}</td>
+                        <td style="text-align: right;">$${producto.precio.toFixed(2)}</td>
+                        <td style="text-align: right;">$${itbis.toFixed(2)}</td>
+                        <td style="text-align: right;">$${total.toFixed(2)}</td>
+                    `;
+                    tabla.appendChild(fila);
+                    // Actualizar el inventario
+                    producto.cantidad -= cantidad;
+                }
             } else {
                 alert("Producto no encontrado");
             }
@@ -127,33 +224,25 @@
 
         // Generar factura
         document.getElementById("generarFactura").addEventListener("click", function () {
-            generarFactura();
-
-            // Incrementar número de factura y sincronizar con NCF
-            numeroFactura++;
-            document.getElementById("numeroFactura").innerText = numeroFactura.toString().padStart(3, '0');
-            const nuevoNCF = generarNuevoNCF(document.getElementById("ncfFactura").innerText);
-            document.getElementById("ncfFactura").innerText = nuevoNCF;
+            const numeroFactura = document.getElementById("numeroFactura").value || "001";
+            const ncfFactura = document.getElementById("ncfFactura").value || "A000000001";
+            generarFactura(numeroFactura, ncfFactura);
         });
 
-        function generarNuevoNCF(actualNCF) {
-            const numero = parseInt(actualNCF.substring(1)) + 1;
-            return `A${numero.toString().padStart(9, "0")}`;
-        }
-
-        function generarFactura() {
+        function generarFactura(numeroFactura, ncfFactura) {
             let facturaContent = `
                 <div style="width: 72mm; margin: 0 auto; text-align: center;">
                     <div>
                         <h2 style="font-size: 1.5em;">VIVELO TVG</h2>
-                        <p style="font-size: 1em;">Av. San Vicente (Detras del Bravo)<br>Calle 13 / 2do Nivel / Numero 19 / Contacto: 829-905-0573</p>
+                        <p style="font-size: 1em;">Av. San Vicente de Paul<br>Calle 13 / 2do Nivel / Numero 19  Contacto: 829-905-0573</p>
                     </div>
                     <div style="text-align: left; font-size: 0.9em;">
                         <p><strong>RNC:</strong> 133-26115-4</p>
-                        <p><strong>Factura No:</strong> ${document.getElementById("numeroFactura").innerText}</p>
-                        <p><strong>NCF:</strong> ${document.getElementById("ncfFactura").innerText}</p>
+                        <p><strong>Factura No:</strong> ${numeroFactura}</p>
+                        <p><strong>NCF:</strong> ${ncfFactura}</p>
                         <p><strong>Fecha:</strong> ${new Date().toLocaleDateString()}</p>
                     </div>
+                    <th style="text-align: left; width: 50%;">factura consumidor final</th>
                     <hr>
                     <h4 style="font-size: 1.2em; text-align: center;">Detalles de Productos</h4>
                     <table style="width: 100%; font-size: 0.9em; text-align: left; margin-top: 10px;">
@@ -171,7 +260,7 @@
                 const descripcion = fila.children[0].innerText;
                 const cantidad = parseFloat(fila.children[1].innerText);
                 const precioUnitario = parseFloat(fila.children[2].innerText.replace('$', ''));
-                const itbis = precioUnitario * 0.18;
+                const itbis = precioUnitario * cantidad * 0.18;
                 const subtotal = precioUnitario * cantidad;
                 const total = subtotal + itbis;
                 totalFactura += total;
@@ -180,6 +269,7 @@
                     <tr>
                         <td style="text-align: left;">${descripcion}</td>
                         <td style="text-align: right;">
+                            <div><strong>Cant.:</strong> ${cantidad}</div>
                             <div><strong>P. Unit:</strong> $${precioUnitario.toFixed(2)}</div>
                             <div><strong>ITBIS (18%):</strong> $${itbis.toFixed(2)}</div>
                             <div><strong>Subtotal:</strong> $${subtotal.toFixed(2)}</div>
@@ -195,13 +285,22 @@
                     <hr>
                     <p style="font-size: 1.5em; font-weight: bold; text-align: center;"><strong>Total:</strong> $${totalFactura.toFixed(2)}</p>
                     <hr>
-                    <div style="text-align: left; margin-top: 20px;">
-                        <p><strong>Recibido:</strong></p>
-                        <div style="border-bottom: 1px solid black; width: 80%; margin: 0 auto; height: 20px;"></div>
+                    <div style="margin-top: 20px; font-size: 0.9em; text-align: left;">
+                        <p style="font-size: 0.8em; text-align: center; margin-top: 10px;">Todos nuestros artículos de ventas, tienen 15 días de garantía para cambio. Los requisitos son: el artículo no puede estar mojado, desalmado y debe tener sus sellos de seguridad.</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+                            <div style="width: 45%; text-align: center;">
+                                <p><strong>Despachado:</strong></p>
+                                <div style="border-bottom: 1px solid black; width: 100%; height: 20px; margin: auto;"></div>
+                            </div>
+                            <div style="width: 45%; text-align: center;">
+                                <p><strong>Recibido:</strong></p>
+                                <div style="border-bottom: 1px solid black; width: 100%; height: 20px; margin: auto;"></div>
+                            </div>
+                        </div>
                     </div>
                     <div style="text-align: center; margin-top: 20px;">
                         <p style="font-size: 0.9em;"><strong>Codigo QR:</strong></p>
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?data=Factura%20${document.getElementById("numeroFactura").innerText}%20NCF%20${document.getElementById("ncfFactura").innerText}&size=100x100" alt="QR Code" style="margin: 0 auto; display: block;">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?data=Factura%20${numeroFactura}%20NCF%20${ncfFactura}&size=100x100" alt="QR Code" style="margin: 0 auto; display: block;">
                     </div>
                 </div>
             `;
@@ -246,11 +345,39 @@
             printWindow.contentWindow.focus();
             printWindow.contentWindow.print();
         }
+
+        // Mostrar inventario
+        document.getElementById("verInventario").addEventListener("click", function () {
+            const tablaInventario = document.getElementById("tablaInventario");
+            tablaInventario.innerHTML = "";
+            for (const codigo in productos) {
+                const producto = productos[codigo];
+                const fila = document.createElement("tr");
+                fila.innerHTML = `
+                    <td>${codigo}</td>
+                    <td>${producto.descripcion}</td>
+                    <td>${producto.cantidad}</td>
+                    <td>$${producto.costo.toFixed(2)}</td>
+                    <td>$${producto.precio.toFixed(2)}</td>
+                `;
+                tablaInventario.appendChild(fila);
+            }
+            document.getElementById("modalInventario").style.display = "block";
+        });
+
+        // Cerrar modal inventario
+        document.getElementById("closeModalInventario").addEventListener("click", function () {
+            document.getElementById("modalInventario").style.display = "none";
+        });
+
+        window.onclick = function(event) {
+            const modal = document.getElementById("modalInventario");
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
     });
 </script>
-
-
-
 
 </body>
 </html>
