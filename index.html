@@ -23,8 +23,8 @@
             
             <!-- Campos de NCF, número de factura y fecha a la izquierda -->
             <div style="text-align: left;">
-                <p style="font-size: 1em;"><strong>NCF:</strong> <input type="text" id="ncfFactura" class="form-control no-print" value="B0200000001" style="display: inline-block; width: auto;"></p>
-                <p style="font-size: 1em;"><strong>FACTURA NO:</strong> <input type="text" id="numeroFactura" class="form-control no-print" value="001" style="display: inline-block; width: auto;"></p>
+                <p style="font-size: 1em;"><strong>NCF:</strong> <input type="text" id="ncfFactura" class="form-control no-print" value="B02 00000001" style="display: inline-block; width: auto;"></p>
+                <p style="font-size: 1em;"><strong>FACTURA NO:</strong> <input type="text" id="numeroFactura" class="form-control no-print" value="01" style="display: inline-block; width: auto;"></p>
                 <p style="font-size: 1em;"><strong>Fecha:</strong> <span id="fechaFactura"></span></p>
             </div>
         </div>
@@ -85,25 +85,6 @@
                 "124": { descripcion: "Repetidor Wifi", precio: 800, costo: 525, cantidad: 15 },
                 "125": { descripcion: "Producto C", precio: 150, costo: 80, cantidad: 8 }
             };
-
-            let numeroFactura = 1;
-
-            // Función para incrementar el NCF
-            function incrementarNCF() {
-                const ncfActual = document.getElementById("ncfFactura").value; // Obtener el NCF actual
-                const numeroStr = ncfActual.slice(3, 10); // Extraer los 7 dígitos numéricos
-                const numero = parseInt(numeroStr, 10); // Convertir a número
-                const nuevoNumero = numero + 1; // Incrementar en 1
-                const nuevoNumeroStr = String(nuevoNumero).padStart(7, '0'); // Formatear a 7 dígitos
-                const nuevoNCF = `B02${nuevoNumeroStr}1`; // Crear el nuevo NCF
-                return nuevoNCF;
-            }
-
-            // Función para incrementar el número de factura
-            function incrementarNumeroFactura() {
-                numeroFactura++;
-                return String(numeroFactura).padStart(3, '0');
-            }
 
             // Agregar productos a la tabla al presionar Enter en el campo de código de producto
             document.getElementById("codigoProducto").addEventListener("keypress", function (e) {
@@ -176,11 +157,9 @@
 
             // Generar factura
             document.getElementById("generarFactura").addEventListener("click", function () {
-                const numeroFacturaActual = incrementarNumeroFactura();
-                const ncfFacturaActual = incrementarNCF();
-                generarFactura(numeroFacturaActual, ncfFacturaActual);
-                document.getElementById("numeroFactura").value = numeroFacturaActual;
-                document.getElementById("ncfFactura").value = ncfFacturaActual;
+                const ncfFactura = document.getElementById("ncfFactura").value; // Obtener el NCF del campo
+                const numeroFactura = document.getElementById("numeroFactura").value; // Obtener el número de factura del campo
+                generarFactura(numeroFactura, ncfFactura);
             });
 
             function generarFactura(numeroFactura, ncfFactura) {
