@@ -12,19 +12,21 @@
 <body>
     <div class="container">
         <div id="factura-encabezado" class="mb-4">
-            <!-- Nombre de la empresa -->
-            <p style="text-align: center; font-size: 2em;"><strong>VIVELO TVG</strong></p>
+            <!-- Nombre de la empresa y RNC en la misma línea -->
+            <p style="text-align: center; font-size: 2em;"><strong>VIVELO TVG</strong> | <strong>RNC:</strong> 133-26115-4</p>
             
-            <!-- Campos de número de factura, NCF y fecha -->
-            <div class="mb-3">
-                <label for="numeroFactura" class="form-label">Número de Factura:</label>
-                <input type="text" id="numeroFactura" class="form-control no-print" value="001">
+            <!-- Ubicación, teléfono y correo en una línea -->
+            <p style="text-align: center; font-size: 1em;">Reparto Alma Rosa C/13 #16 | Tel: 829-905-0573 | Correo: vivelotvg@gmail.com</p>
+            
+            <!-- Espacio hacia abajo -->
+            <br>
+            
+            <!-- Campos de NCF, número de factura y fecha a la izquierda -->
+            <div style="text-align: left;">
+                <p style="font-size: 1em;"><strong>NCF:</strong> <input type="text" id="ncfFactura" class="form-control no-print" value="B0200000001" style="display: inline-block; width: auto;"></p>
+                <p style="font-size: 1em;"><strong>FACTURA NO:</strong> <input type="text" id="numeroFactura" class="form-control no-print" value="001" style="display: inline-block; width: auto;"></p>
+                <p style="font-size: 1em;"><strong>Fecha:</strong> <span id="fechaFactura"></span></p>
             </div>
-            <div class="mb-3">
-                <label for="ncfFactura" class="form-label">NCF:</label>
-                <input type="text" id="ncfFactura" class="form-control no-print" value="B0200000001">
-            </div>
-            <p style="text-align: left; font-size: 1em;"><strong>Fecha:</strong> <span id="fechaFactura"></span></p>
         </div>
         <div class="mb-3">
             <label for="codigoProducto" class="form-label">Escanear Código del Producto:</label>
@@ -185,22 +187,15 @@
                 let facturaContent = `
                     <div style="width: 72mm; margin: 0 auto; text-align: center;">
                         <div>
-                            <h2 style="font-size: 1.5em;">Vívelo Tvg S.R.L</h2>
-                            <p style="font-size: 1em;">
-                                Reparto Alma Rosa C/13 #16<br>
-                                Contacto: 829-905-0573
-                            </p>
-                            <p style="font-size: 1em;">
-                                <strong>RNC:</strong> 133-26115-4<br>
-                                <strong>Fecha:</strong> ${new Date().toLocaleDateString()}
-                            </p>
+                            <h2 style="font-size: 1.5em;">VIVELO TVG | <strong>RNC:</strong> 133-26115-4</h2>
+                            <p style="font-size: 1em;">Reparto Alma Rosa C/13 #16 | Tel: 829-905-0573 | Correo: vivelotvg@gmail.com</p>
+                            <br>
+                            <div style="text-align: left;">
+                                <p style="font-size: 1em;"><strong>NCF:</strong> ${ncfFactura}</p>
+                                <p style="font-size: 1em;"><strong>FACTURA NO:</strong> ${numeroFactura}</p>
+                                <p style="font-size: 1em;"><strong>Fecha:</strong> ${new Date().toLocaleDateString()}</p>
+                            </div>
                         </div>
-                        <div style="text-align: left; font-size: 0.9em;">
-                            <p><strong>Factura No:</strong> ${numeroFactura}</p>
-                            <p><strong>NCF:</strong> ${ncfFactura}</p>
-                            <p><strong>Vendedor:</strong> Gregory</p>
-                        </div>
-                        <th style="text-align: left; width: 50%;">FACTURA CONSUMIDOR FINAL</th>
                         <hr>
                         <h4 style="font-size: 1.2em; text-align: center;">Detalles de Productos</h4>
                         <table style="width: 100%; font-size: 0.9em; text-align: left; margin-top: 10px;">
