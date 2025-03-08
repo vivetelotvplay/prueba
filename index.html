@@ -86,6 +86,17 @@
                 "125": { descripcion: "Producto C", precio: 150, costo: 80, cantidad: 8 }
             };
 
+            // Cargar valores guardados del localStorage al iniciar
+            const ncfFacturaInput = document.getElementById("ncfFactura");
+            const numeroFacturaInput = document.getElementById("numeroFactura");
+
+            if (localStorage.getItem("ultimoNCF")) {
+                ncfFacturaInput.value = localStorage.getItem("ultimoNCF");
+            }
+            if (localStorage.getItem("ultimoNumeroFactura")) {
+                numeroFacturaInput.value = localStorage.getItem("ultimoNumeroFactura");
+            }
+
             // Agregar productos a la tabla al presionar Enter en el campo de código de producto
             document.getElementById("codigoProducto").addEventListener("keypress", function (e) {
                 if (e.key === 'Enter') {
@@ -159,6 +170,11 @@
             document.getElementById("generarFactura").addEventListener("click", function () {
                 const ncfFactura = document.getElementById("ncfFactura").value; // Obtener el NCF del campo
                 const numeroFactura = document.getElementById("numeroFactura").value; // Obtener el número de factura del campo
+
+                // Guardar los valores en localStorage
+                localStorage.setItem("ultimoNCF", ncfFactura);
+                localStorage.setItem("ultimoNumeroFactura", numeroFactura);
+
                 generarFactura(numeroFactura, ncfFactura);
             });
 
