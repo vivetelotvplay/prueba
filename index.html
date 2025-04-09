@@ -12,20 +12,22 @@
 <body>
     <div class="container">
         <div id="factura-encabezado" class="mb-4">
-            <!-- Nombre de la empresa y RNC en la misma línea -->
-            <p style="text-align: center; font-size: 2em;"><strong>VIVELO TVG</strong> | <strong>RNC:</strong> 133-26115-4</p>
+            <!-- Nombre de la empresa -->
+            <p style="text-align: center; font-size: 2em;"><strong>VIVELO TVG</strong></p>
+            
+            <!-- RNC y Fecha debajo del nombre -->
+            <p style="text-align: center; font-size: 1em;">
+                <strong>RNC:</strong> 133-26115-4 | 
+                <strong>Fecha:</strong> <span id="fechaFactura">9/4/2025</span>
+            </p>
             
             <!-- Ubicación, teléfono y correo en una línea -->
             <p style="text-align: center; font-size: 1em;">Reparto Alma Rosa C/13 #16 | Tel: 829-905-0573 | Correo: vivelotvg@gmail.com</p>
             
-            <!-- Espacio hacia abajo -->
-            <br>
-            
-            <!-- Campos de NCF, número de factura y fecha a la izquierda -->
-            <div style="text-align: left;">
-                <p style="font-size: 1em;"><strong>NCF:</strong> <input type="text" id="ncfFactura" class="form-control no-print" value="B0200000001" style="display: inline-block; width: auto;"></p>
-                <p style="font-size: 1em;"><strong>FACTURA NO:</strong> <input type="text" id="numeroFactura" class="form-control no-print" value="01" style="display: inline-block; width: auto;"></p>
-                <p style="font-size: 1em;"><strong>Fecha:</strong> <span id="fechaFactura"></span></p>
+            <!-- NCF y número de factura a la izquierda -->
+            <div style="text-align: left; margin-top: 10px;">
+                <p style="font-size: 1em;"><strong>NCF:</strong> B0200000005</p>
+                <p style="font-size: 1em;"><strong>FACTURA No:</strong> 05</p>
             </div>
         </div>
         <div class="mb-3">
@@ -171,12 +173,8 @@
 
             // Generar factura
             document.getElementById("generarFactura").addEventListener("click", function () {
-                const ncfFactura = document.getElementById("ncfFactura").value; // Obtener el NCF del campo
-                const numeroFactura = document.getElementById("numeroFactura").value; // Obtener el número de factura del campo
-
-                // Guardar los valores en localStorage
-                localStorage.setItem("ultimoNCF", ncfFactura);
-                localStorage.setItem("ultimoNumeroFactura", numeroFactura);
+                const ncfFactura = "B0200000005"; // Valor fijo como solicitaste
+                const numeroFactura = "05"; // Valor fijo como solicitaste
 
                 generarFactura(numeroFactura, ncfFactura);
             });
@@ -187,15 +185,17 @@
                         <div>
                             <h2 style="font-size: 1.5em;">Vívelo Tvg S.R.L</h2>
                             <p style="font-size: 1em;">
+                                <strong>RNC:</strong> 133-26115-4 | 
+                                <strong>Fecha:</strong> 9/4/2025
+                            </p>
+                            <p style="font-size: 1em;">
                                 Av. San Vicente de Paul #112<br>
                                 Contacto: 829-905-0573
                             </p>
-                            <p style="font-size: 1em;">
-                                <strong>RNC:</strong> 133-26115-4<br>
-                                <strong>NCF:</strong> ${ncfFactura}<br>
-                                <strong>FACTURA No:</strong> ${numeroFactura}<br>
-                                <strong>Fecha:</strong> ${new Date().toLocaleDateString()}
-                            </p>
+                            <div style="text-align: left; margin-top: 10px;">
+                                <p style="font-size: 1em;"><strong>NCF:</strong> ${ncfFactura}</p>
+                                <p style="font-size: 1em;"><strong>FACTURA No:</strong> ${numeroFactura}</p>
+                            </div>
                         </div>
                         <p style="font-size: 1em; text-align: center; margin-top: 10px;">Factura Consumidor Final</p>
                         <hr>
