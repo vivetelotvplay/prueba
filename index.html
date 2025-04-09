@@ -6,7 +6,40 @@
     <title>Generador de Facturas</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
     <style>
-        /* Estilos anteriores... */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -24,10 +57,14 @@
             <!-- Ubicación, teléfono y correo en una línea -->
             <p style="text-align: center; font-size: 1em;">Reparto Alma Rosa C/13 #16 | Tel: 829-905-0573 | Correo: vivelotvg@gmail.com</p>
             
-            <!-- NCF y número de factura a la izquierda -->
+            <!-- NCF y número de factura a la izquierda - EDITABLES -->
             <div style="text-align: left; margin-top: 10px;">
-                <p style="font-size: 1em;"><strong>NCF:</strong> B0200000005</p>
-                <p style="font-size: 1em;"><strong>FACTURA No:</strong> 05</p>
+                <p style="font-size: 1em;"><strong>NCF:</strong> 
+                    <input type="text" id="ncfFactura" class="form-control no-print" value="B0200000001" style="display: inline-block; width: auto;">
+                </p>
+                <p style="font-size: 1em;"><strong>FACTURA No:</strong> 
+                    <input type="text" id="numeroFactura" class="form-control no-print" value="01" style="display: inline-block; width: auto;">
+                </p>
             </div>
         </div>
         <div class="mb-3">
@@ -173,8 +210,12 @@
 
             // Generar factura
             document.getElementById("generarFactura").addEventListener("click", function () {
-                const ncfFactura = "B0200000005"; // Valor fijo como solicitaste
-                const numeroFactura = "05"; // Valor fijo como solicitaste
+                const ncfFactura = document.getElementById("ncfFactura").value;
+                const numeroFactura = document.getElementById("numeroFactura").value;
+
+                // Guardar los valores en localStorage
+                localStorage.setItem("ultimoNCF", ncfFactura);
+                localStorage.setItem("ultimoNumeroFactura", numeroFactura);
 
                 generarFactura(numeroFactura, ncfFactura);
             });
@@ -186,7 +227,7 @@
                             <h2 style="font-size: 1.5em;">Vívelo Tvg S.R.L</h2>
                             <p style="font-size: 1em;">
                                 <strong>RNC:</strong> 133-26115-4 | 
-                                <strong>Fecha:</strong> 9/4/2025
+                                <strong>Fecha:</strong> ${new Date().toLocaleDateString()}
                             </p>
                             <p style="font-size: 1em;">
                                 Av. San Vicente de Paul #112<br>
