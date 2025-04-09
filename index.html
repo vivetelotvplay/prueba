@@ -23,7 +23,7 @@
             
             <!-- Campos de NCF, número de factura y fecha a la izquierda -->
             <div style="text-align: left;">
-                <p style="font-size: 1em;"><strong>NCF:</strong> <input type="text" id="ncfFactura" class="form-control no-print" value="B02 00000001" style="display: inline-block; width: auto;"></p>
+                <p style="font-size: 1em;"><strong>NCF:</strong> <input type="text" id="ncfFactura" class="form-control no-print" value="B0200000001" style="display: inline-block; width: auto;"></p>
                 <p style="font-size: 1em;"><strong>FACTURA NO:</strong> <input type="text" id="numeroFactura" class="form-control no-print" value="01" style="display: inline-block; width: auto;"></p>
                 <p style="font-size: 1em;"><strong>Fecha:</strong> <span id="fechaFactura"></span></p>
             </div>
@@ -87,7 +87,6 @@
                 "1851": { descripcion: "Refrigerador de Auto 9L", precio: 11016.9, costo: 9000, cantidad: 2 },
                 "1850": { descripcion: "Proyector hy300", precio: 2881.3, costo: 2800, cantidad: 33 },
                 "1853": { descripcion: "Pantalla con soportes", precio: 5508, costo: 4500, cantidad: 2 },
-
             };
 
             // Cargar valores guardados del localStorage al iniciar
@@ -190,8 +189,11 @@
                             <p style="font-size: 1em;">
                                 Av. San Vicente de Paul #112<br>
                                 Contacto: 829-905-0573
-                            </p> <p style="font-size: 1em;">
+                            </p>
+                            <p style="font-size: 1em;">
                                 <strong>RNC:</strong> 133-26115-4<br>
+                                <strong>NCF:</strong> ${ncfFactura}<br>
+                                <strong>FACTURA No:</strong> ${numeroFactura}<br>
                                 <strong>Fecha:</strong> ${new Date().toLocaleDateString()}
                             </p>
                         </div>
