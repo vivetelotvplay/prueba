@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mi PWA Instalable</title>
+
+
+<!-- Manifest -->
+<link rel="manifest" href="/manifest.json">
+
+
+<!-- Icono para navegadores que usan link rel -->
+<link rel="icon" href="/icons/icon-192.png">
+
+
+<meta name="theme-color" content="#0a84ff" />
+<meta name="description" content="Ejemplo de PWA instalable — sube a GitHub Pages para probar">
+
+
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<main class="container">
+<header>
+<h1>Mi PWA Instalable</h1>
+<p>Abre el menú del navegador o usa el botón 'Instalar' para añadir esta app a tu dispositivo.</p>
+</header>
+
+
+<section id="status">
+<p>Estado: <strong id="sw-status">Sin service worker</strong></p>
+</section>
+
+
+<section>
+<button id="btn-install" hidden>Instalar app</button>
+<button id="btn-reload">Recargar (forzar SW)</button>
+</section>
+
+
+<section class="content">
+<h2>Contenido offline</h2>
+<p>Esta página tiene una versión básica que funciona sin conexión gracias al service worker que cachea los archivos esenciales.</p>
+</section>
+
+
+<footer>
+<small>Ejemplo PWA • Sube a GitHub Pages y prueba en Chrome/Edge/Firefox (limitado).</small>
+</footer>
+</main>
+
+
+<script src="/app.js"></script>
+</body>
+</html>
