@@ -1,0 +1,551 @@
+
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Factura Térmica Completa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* --- Estilos Anteriores (sin cambios) --- */
+    * { box-sizing: border-box; font-family: 'Arial', sans-serif; }
+    body { margin: 0; padding: 0; width: 80mm; background-color: #f0f0f0; display: flex; justify-content: center; }
+    .factura { width: 80mm; padding: 10px 5px; background-color: #fff; }
+    .header { text-align: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed #000; }
+    .nombre-negocio { font-weight: bold; font-size: 16px; margin: 5px 0; letter-spacing: 0.5px; }
+    .info-negocio { font-size: 11px; margin: 3px 0; line-height: 1.3; }
+    .ncf-container { text-align: left; font-size: 14px; margin-top: 10px; font-weight: bold; }
+    .numero-factura { font-weight: bold; text-align: left; margin: 10px 0; font-size: 14px; padding: 5px 0; border-top: 1px dashed #000; border-bottom: 1px dashed #000; }
+    .ncf-validez { font-weight: normal; font-size: 11px; }
+    .datos-factura, .total-row { display: flex; justify-content: space-between; margin: 6px 0; font-size: 12px; }
+    .datos-cliente { margin: 12px 0; font-size: 12px; }
+    .cliente-label { font-weight: bold; font-size: 13px; }
+    .tipo-factura { text-align: center; margin: 12px 0; font-weight: bold; font-size: 14px; text-decoration: underline; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 12px; }
+    table th { text-align: left; border-bottom: 1px solid #000; padding: 5px 3px; font-weight: bold; }
+    table td { padding: 6px 3px; border-bottom: 1px dashed #ccc; }
+    .totales { margin-top: 15px; border-top: 1px solid #000; padding-top: 10px; font-size: 13px; }
+    .total-final { font-weight: bold; font-size: 14px; margin-top: 8px; }
+    .firma-section { margin-top: 20px; padding-top: 10px; border-top: 1px dashed #000; }
+    .firma-label { font-weight: bold; text-align: center; margin-bottom: 5px; font-size: 13px; }
+    #firma-imagen { width: 100%; border: 1px solid #000; display: none; }
+    #canvasFirma { width: 100%; height: 80px; border: 1px solid #000; margin: 0 auto; display: block; }
+    .firma-texto { font-size: 10px; text-align: center; margin-top: 3px; font-style: italic; }
+    .footer { margin-top: 15px; text-align: center; font-size: 10px; padding-top: 10px; border-top: 1px dashed #000; line-height: 1.4; }
+    .print-button { width: 100%; padding: 10px; margin-top: 15px; background: #000; color: white; border: none; cursor: pointer; font-weight: bold; font-size: 14px; }
+    
+    /* --- NUEVOS ESTILOS PARA EL PANEL DE CONTROL --- */
+    .panel-control, .panel-ventas {
+        background-color: #f3f3f3;
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin-top: 20px;
+        page-break-before: always; /* Rompe la página para la impresión si es necesario */
+    }
+    .panel-control h4, .panel-ventas h4 {
+        margin: 0 0 10px 0;
+        font-size: 14px;
+        text-align: center;
+        color: #333;
+        font-weight: bold;
+    }
+    .panel-control input {
+        width: 100%;
+        padding: 5px;
+        margin-bottom: 5px;
+        border: 1px solid #ccc;
+    }
+    .panel-control button {
+        width: 100%;
+        padding: 8px;
+        background-color: #007bff; /* Color azul para control */
+        color: white;
+        border: none;
+        cursor: pointer;
+        margin-top: 5px;
+    }
+    
+    .panel-ventas table {
+        width: 100%;
+        font-size: 11px;
+        margin-top: 8px;
+        border: 1px solid #ccc;
+    }
+    .panel-ventas th {
+        background-color: #e0e0e0;
+        font-size: 11px;
+        text-align: left;
+        padding: 4px;
+        border-bottom: 1px solid #ccc;
+    }
+    .panel-ventas td {
+        padding: 4px;
+        border-bottom: 1px dashed #eee;
+    }
+    .ventas-total-row {
+        font-weight: bold;
+        padding: 5px;
+        background-color: #ddd;
+        display: flex;
+        justify-content: space-between;
+        margin-top: 5px;
+    }
+
+    @media print {
+      body { width: 80mm; margin: 0; padding: 0; background-color: #fff; }
+      .factura { width: 80mm; padding: 5px; box-shadow: none; }
+      .no-print { display: none !important; }
+      /* Asegura que el panel de ventas aparezca al final de la factura si hay espacio o en la siguiente página */
+      .panel-ventas {
+          page-break-after: always;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="factura">
+  <div class="header">
+    <div class="nombre-negocio">VIVELO TVG SRL</div>
+    <div class="info-negocio">Av. San Vicente de Paul #112, Santo Domingo, Este</div>
+    <div class="info-negocio">Tel: 829-905-0573 | RNC: 133261154</div>
+  </div>
+  <div class="ncf-container">
+    <div>NCF: <span id="ncf-numero"></span></div>
+    <div class="ncf-validez">VALIDO HASTA: 31/12/2025</div>
+  </div>
+  <div class="numero-factura">FACTURA: <span id="numero-factura"></span></div>
+  <div class="datos-factura">
+    <div><strong>Fecha:</strong> <span id="fecha"></span></div>
+    <div><strong>Hora:</strong> <span id="hora"></span></div>
+  </div>
+  <div class="datos-cliente">
+    <div class="cliente-label">CLIENTE:</div>
+    <div id="cliente"></div>
+  </div>
+  <div class="tipo-factura">FACTURA CONSUMIDOR FINAL</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Descripcion</th>
+        <th style="text-align: right;">P. Unit.</th>
+        <th style="text-align: right;">Cant.</th>
+        <th style="text-align: right;">Subtotal</th> </tr>
+    </thead>
+    <tbody id="tablaProductos">
+    </tbody>
+  </table>
+  <div class="totales">
+    <div class="total-row">
+      <span>Subtotal:</span>
+      <span id="total-subtotal"></span>
+    </div>
+    <div class="total-row">
+      <span>ITBIS (18%):</span>
+      <span id="total-itbis"></span>
+    </div>
+    <div class="total-row total-final">
+      <span>TOTAL GENERAL:</span>
+      <span id="total-general"></span>
+    </div>
+  </div>
+  <div class="firma-section">
+    <div class="firma-label">FIRMA DEL CLIENTE</div>
+    <div id="firma-container">
+        <canvas id="canvasFirma" width="300" height="100"></canvas>
+        <img id="firma-imagen" alt="Firma del cliente">
+        <div class="firma-texto no-print">(Firme con el dedo o el mouse — Doble clic para borrar)</div>
+    </div>
+    <button id="guardar-firma-btn" class="print-button no-print" onclick="guardarFirma()">GUARDAR FIRMA</button>
+    <div id="mensaje-firma" class="firma-texto no-print"></div>
+  </div>
+  <div class="footer">
+    <div>Gracias por su compra!</div>
+    <div>Todos nuestros articulos electronicos tienen 15 dias de garantia para cambio, no puede estar mojado, desalmado y debe tener los sellos de seguridad, debe presentar factura.</div>
+  </div>
+  <button class="print-button no-print" onclick="imprimirYActualizar()">IMPRIMIR FACTURA Y REGISTRAR VENTA</button>
+
+  <!-- Panel de Control para Números -->
+  <div class="panel-control no-print">
+      <h4>Panel de Control de Numeración</h4>
+      <label for="inputNcf">Próximo NCF:</label>
+      <input type="number" id="inputNcf" placeholder="Ej: 150">
+      <label for="inputFactura">Próxima Factura:</label>
+      <input type="number" id="inputFactura" placeholder="Ej: 501">
+      <button onclick="actualizarNumerosManualmente()">Actualizar Próximos Números</button>
+  </div>
+  
+  <!-- NUEVA PLANILLA DE REGISTRO DE VENTAS DIARIAS -->
+  <div class="panel-ventas no-print">
+      <h4>Registro de Ventas Diarias (<span id="fecha-ventas"></span>)</h4>
+      <p id="cargando-ventas" style="text-align: center;">Cargando ventas...</p>
+      <table>
+          <thead>
+              <tr>
+                  <th style="width: 70%;">Artículo</th>
+                  <th style="text-align: right;">Precio (Sin ITBIS)</th>
+              </tr>
+          </thead>
+          <tbody id="tablaVentasDiarias">
+              <!-- Datos se insertarán aquí por JS -->
+          </tbody>
+      </table>
+      <div class="ventas-total-row">
+          <span>TOTAL VENDIDO HOY:</span>
+          <span id="total-ventas-dia">0.00 RD$</span>
+      </div>
+  </div>
+</div>
+
+<script type="module">
+  // Importaciones de Firebase
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  import { getFirestore, doc, setDoc, onSnapshot, collection, query, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+  
+  // Variables globales de la app (MANDATORIAS)
+  const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+  const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+
+  // Inicialización de Firebase
+  let app, db, auth, userId = null;
+
+  // Función para obtener la fecha de inicio del día (para agrupar las ventas)
+  function getStartOfDay(date) {
+    // Para implementar el "reinicio a las 8 AM", ajustamos la hora de la fecha:
+    const d = new Date(date);
+    d.setHours(8, 0, 0, 0); // 8:00:00 AM
+    
+    // Si la hora actual es antes de las 8 AM, el día de venta debe ser el día anterior
+    const now = new Date();
+    if (now.getHours() < 8) {
+        d.setDate(d.getDate() - 1);
+    }
+    
+    // El timestamp para Firestore será el inicio de ese 'día de venta'.
+    return d;
+  }
+
+  // Utilidad para formatear números a moneda
+  const formatter = new Intl.NumberFormat('es-DO', { 
+    style: 'currency', 
+    currency: 'DOP',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+
+  // Variables para la Factura
+  const params = new URLSearchParams(window.location.search);
+  let productosVendidos = []; // Almacena los productos listos para el registro
+
+  // --- FUNCIÓN DE INICIALIZACIÓN DE FIREBASE Y AUTH ---
+  async function initFirebase() {
+      try {
+          app = initializeApp(firebaseConfig);
+          db = getFirestore(app);
+          auth = getAuth(app);
+          
+          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+              await signInWithCustomToken(auth, __initial_auth_token);
+          } else {
+              await signInAnonymously(auth);
+          }
+
+          onAuthStateChanged(auth, (user) => {
+              if (user) {
+                  userId = user.uid;
+                  console.log("Usuario autenticado. UID:", userId);
+                  setupFactura();
+                  setupVentasListener();
+              } else {
+                  // Si no hay token inicial, usa un ID aleatorio y solo permite acceso privado
+                  userId = crypto.randomUUID();
+                  console.log("Sesión anónima o sin usuario. UID temporal:", userId);
+                  setupFactura();
+              }
+          });
+      } catch (error) {
+          console.error("Error al inicializar Firebase o autenticación:", error);
+          // Si falla Firebase, la factura aún puede mostrarse.
+          setupFactura(); 
+      }
+  }
+
+  // --- FUNCIÓN PARA CONFIGURAR LA FACTURA Y LEER URL ---
+  function setupFactura() {
+    const cliente = params.get('cliente') || 'Consumidor final';
+    
+    // Lógica para números de Factura/NCF (usando localStorage como fallback/control)
+    let numeroFacturaActual = parseInt(localStorage.getItem('facturaNumero')) || 1;
+    let numeroNcfActual = parseInt(localStorage.getItem('ncfNumero')) || 1;
+    const numeroFacturaFormateado = String(numeroFacturaActual).padStart(6, '0');
+    const ncfFormateado = 'B02' + String(numeroNcfActual).padStart(8, '0');
+    
+    document.getElementById('inputNcf').placeholder = `Próximo NCF (actual: ${numeroNcfActual})`;
+    document.getElementById('inputFactura').placeholder = `Próxima Factura (actual: ${numeroFacturaActual})`;
+    
+    document.getElementById('numero-factura').textContent = numeroFacturaFormateado;
+    document.getElementById('ncf-numero').textContent = ncfFormateado;
+    document.getElementById('cliente').textContent = cliente;
+
+    // Fechas
+    const fecha = new Date().toLocaleDateString('es-DO');
+    const hora = new Date().toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('fecha').textContent = fecha;
+    document.getElementById('hora').textContent = hora;
+    document.getElementById('fecha-ventas').textContent = getStartOfDay(new Date()).toLocaleDateString('es-DO');
+
+    // Procesamiento de Productos de la URL
+    const tablaProductos = document.getElementById('tablaProductos');
+    tablaProductos.innerHTML = "";
+    productosVendidos = []; // Reiniciar la lista de productos para el registro
+    let subtotalCalculado = 0;
+    
+    let i = 0;
+    let productosEncontrados = false;
+    while (params.has(`p${i}`)) {
+        productosEncontrados = true;
+        const datosProducto = params.get(`p${i}`).split('*');
+        
+        // La estructura es: [0]Descripcion, [1]Cantidad, [2]PrecioUnitario, [3]ITBISIndividual
+        const descripcion = decodeURIComponent(datosProducto[0] || 'Producto');
+        const cantidad = parseFloat(datosProducto[1]) || 0;
+        const precioUnitario = parseFloat(datosProducto[2]) || 0;
+        
+        // Subtotal del Ítem (Precio Unitario * Cantidad, P.Unit. es SIN ITBIS)
+        const subtotalItem = (cantidad * precioUnitario);
+        subtotalCalculado += subtotalItem;
+
+        // Añadir a la lista de registro (Solo Nombre y Precio Unitario SIN ITBIS)
+        productosVendidos.push({
+            nombre: descripcion,
+            precioSinItbis: precioUnitario, // El precio unitario de la URL es sin ITBIS
+            cantidad: cantidad
+        });
+        
+        const nuevaFila = document.createElement('tr');
+        nuevaFila.innerHTML = `
+            <td>${descripcion}</td>
+            <td style="text-align: right;">${formatter.format(precioUnitario)}</td>
+            <td style="text-align: right;">${cantidad}</td>
+            <td style="text-align: right;">${formatter.format(subtotalItem)}</td>`;
+        
+        tablaProductos.appendChild(nuevaFila);
+        i++;
+    }
+
+    if (!productosEncontrados) {
+        tablaProductos.innerHTML = `
+          <tr>
+            <td>Producto no especificado</td>
+            <td style="text-align: right;">${formatter.format(0)}</td>
+            <td style="text-align: right;">0</td>
+            <td style="text-align: right;">${formatter.format(0)}</td>
+          </tr>`;
+    }
+
+    // Calcular totales de la factura
+    const totalGeneral = subtotalCalculado * 1.18;
+    const itbisCalculado = totalGeneral - subtotalCalculado;
+    
+    document.getElementById('total-subtotal').textContent = formatter.format(subtotalCalculado);
+    document.getElementById('total-itbis').textContent = formatter.format(itbisCalculado);
+    document.getElementById('total-general').textContent = formatter.format(totalGeneral);
+    
+    // Lógica de Firma (Mantiene la función original)
+    const canvas = document.getElementById("canvasFirma");
+    const ctx = canvas.getContext("2d");
+    const firmaImagen = document.getElementById("firma-imagen");
+    const guardarBtn = document.getElementById("guardar-firma-btn");
+    const firmaGuardada = sessionStorage.getItem('firmaCliente');
+
+    if (firmaGuardada) {
+      firmaImagen.src = firmaGuardada;
+      firmaImagen.style.display = 'block';
+      canvas.style.display = 'none';
+      guardarBtn.style.display = 'none';
+      document.querySelector('.firma-texto').style.display = 'none';
+    }
+
+    const ratio = window.devicePixelRatio || 1;
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    canvas.style.width = canvas.offsetWidth + "px";
+    canvas.style.height = canvas.offsetHeight + "px";
+    ctx.scale(ratio, ratio);
+    let dibujando = false;
+
+    function obtenerPosicion(e) {
+      const rect = canvas.getBoundingClientRect();
+      const evt = e.touches ? e.touches[0] : e;
+      return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
+    }
+    function comenzarDibujo(e) {
+      dibujando = true;
+      const pos = obtenerPosicion(e);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+      e.preventDefault();
+    }
+    function terminarDibujo(e) {
+      dibujando = false;
+      ctx.closePath();
+      e.preventDefault();
+    }
+    function dibujar(e) {
+      if (!dibujando) return;
+      const pos = obtenerPosicion(e);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.lineWidth = 1.8;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "#000";
+      ctx.stroke();
+      e.preventDefault();
+    }
+    
+    canvas.addEventListener("mousedown", comenzarDibujo);
+    canvas.addEventListener("mousemove", dibujar);
+    canvas.addEventListener("mouseup", terminarDibujo);
+    canvas.addEventListener("mouseleave", terminarDibujo);
+    canvas.addEventListener("touchstart", comenzarDibujo);
+    canvas.addEventListener("touchmove", dibujar);
+    canvas.addEventListener("touchend", terminarDibujo);
+    canvas.addEventListener("dblclick", () => ctx.clearRect(0, 0, canvas.width, canvas.height));
+  }
+
+  // --- FUNCIÓN PARA ESCUCHAR CAMBIOS EN LAS VENTAS ---
+  function setupVentasListener() {
+      if (!db || !userId) return;
+
+      const startOfDay = getStartOfDay(new Date());
+      
+      // Colección pública: /artifacts/{appId}/public/data/ventasDiarias
+      const ventasRef = collection(db, 'artifacts', appId, 'public', 'data', 'ventasDiarias');
+      
+      // onSnapshot para escuchar en tiempo real
+      onSnapshot(ventasRef, (snapshot) => {
+          document.getElementById('cargando-ventas').style.display = 'none';
+          const tablaBody = document.getElementById('tablaVentasDiarias');
+          tablaBody.innerHTML = '';
+          let totalVentasHoy = 0;
+          const ventasDelDia = [];
+
+          snapshot.forEach((doc) => {
+              const venta = doc.data();
+              const ventaDate = new Date(venta.timestamp.toDate());
+              const startOfVentaDay = getStartOfDay(ventaDate);
+
+              // Comparamos si la venta pertenece al día de hoy (ajustado a las 8 AM)
+              if (startOfVentaDay.getTime() === startOfDay.getTime()) {
+                  ventasDelDia.push(venta);
+                  totalVentasHoy += venta.precioSinItbis; // Acumular el precio del artículo
+              }
+          });
+
+          // Mostrar las ventas encontradas
+          if (ventasDelDia.length === 0) {
+              tablaBody.innerHTML = '<tr><td colspan="2" style="text-align: center;">No hay ventas registradas para este día.</td></tr>';
+          } else {
+              // Ordenar por hora de registro (si se desea: ventasDelDia.sort((a, b) => a.timestamp.toDate() - b.timestamp.toDate());)
+              ventasDelDia.forEach(venta => {
+                  const newRow = tablaBody.insertRow();
+                  const cell1 = newRow.insertCell(0);
+                  const cell2 = newRow.insertCell(1);
+
+                  cell1.textContent = venta.nombre;
+                  cell2.textContent = formatter.format(venta.precioSinItbis);
+                  cell2.style.textAlign = 'right';
+              });
+          }
+
+          document.getElementById('total-ventas-dia').textContent = formatter.format(totalVentasHoy);
+          console.log(`Ventas del día actual (${startOfDay.toLocaleDateString()}):`, ventasDelDia);
+
+      }, (error) => {
+          console.error("Error al escuchar las ventas diarias:", error);
+          document.getElementById('cargando-ventas').textContent = 'Error al cargar las ventas.';
+      });
+  }
+
+  // --- FUNCIÓN PARA GUARDAR REGISTROS DE VENTA EN FIRESTORE ---
+  async function registrarVenta() {
+      if (!db || !userId || productosVendidos.length === 0) {
+          console.error("No se puede registrar la venta: Firebase no inicializado, usuario no disponible o no hay productos.");
+          return;
+      }
+      
+      // Colección pública: /artifacts/{appId}/public/data/ventasDiarias
+      const ventasRef = collection(db, 'artifacts', appId, 'public', 'data', 'ventasDiarias');
+
+      for (const item of productosVendidos) {
+          try {
+              // Registrar cada artículo como un documento separado
+              await addDoc(ventasRef, {
+                  timestamp: new Date(),
+                  nombre: item.nombre,
+                  precioSinItbis: item.precioSinItbis,
+                  cantidad: item.cantidad,
+                  registradoPor: userId // Opcional, para saber quién lo registró
+              });
+          } catch (error) {
+              console.error(`Error al registrar el artículo ${item.nombre}:`, error);
+          }
+      }
+      console.log(`Venta de ${productosVendidos.length} artículos registrada en Firestore.`);
+  }
+
+  // --- FUNCIONES GLOBALES (ACCESIBLES DESDE EL HTML) ---
+
+  // Actualizar los números de factura y NCF manualmente (Solo localStorage)
+  window.actualizarNumerosManualmente = function() {
+      const nuevoNcf = document.getElementById('inputNcf').value;
+      const nuevaFactura = document.getElementById('inputFactura').value;
+
+      if (nuevoNcf) {
+          localStorage.setItem('ncfNumero', parseInt(nuevoNcf));
+      }
+      if (nuevaFactura) {
+          localStorage.setItem('facturaNumero', parseInt(nuevaFactura));
+      }
+
+      if (nuevoNcf || nuevaFactura) {
+          alert("¡Números actualizados! La página se recargará para mostrar los cambios.");
+          location.reload();
+      } else {
+          alert("Por favor, ingrese al menos un número para actualizar.");
+      }
+  }
+
+  // Guardar firma (Sin cambios)
+  window.guardarFirma = function() {
+    const canvas = document.getElementById("canvasFirma");
+    const dataURL = canvas.toDataURL("image/png");
+    sessionStorage.setItem('firmaCliente', dataURL);
+    document.getElementById("mensaje-firma").innerText = "Firma guardada correctamente.";
+    document.getElementById("mensaje-firma").style.color = "green";
+    const firmaImagen = document.getElementById("firma-imagen");
+    firmaImagen.src = dataURL;
+    firmaImagen.style.display = 'block';
+    canvas.style.display = 'none';
+    document.getElementById("guardar-firma-btn").style.display = 'none';
+  }
+
+  // Función principal de impresión, registro y actualización
+  window.imprimirYActualizar = function() {
+    // 1. Imprimir
+    window.print();
+    
+    // 2. Registrar venta en Firestore
+    registrarVenta();
+    
+    // 3. Actualizar números de factura y NCF (en localStorage)
+    let proximoNumeroFactura = (parseInt(localStorage.getItem('facturaNumero')) || 1) + 1;
+    let proximoNcf = (parseInt(localStorage.getItem('ncfNumero')) || 1) + 1;
+    localStorage.setItem('facturaNumero', proximoNumeroFactura);
+    localStorage.setItem('ncfNumero', proximoNcf);
+  }
+
+  // Iniciar la aplicación al cargar el DOM
+  document.addEventListener("DOMContentLoaded", initFirebase);
+</script>
+
+</body>
+</html>
