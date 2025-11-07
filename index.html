@@ -236,7 +236,7 @@
   const params = new URLSearchParams(window.location.search);
   let productosVendidos = []; // Almacena los productos listos para el registro
 
-  // --- FUNCIÓN DE INICIALIZACIÓN DE FIREBASE Y AUTH ---
+ // --- FUNCIÓN DE INICIALIZACIÓN DE FIREBASE Y AUTH ---
   async function initFirebase() {
       try {
           app = initializeApp(firebaseConfig);
@@ -249,23 +249,23 @@
               await signInAnonymously(auth);
           }
 
+          // **CAMBIO CLAVE: Llamamos a las funciones inmediatamente**
+          setupFactura();
+          setupVentasListener();
+
           onAuthStateChanged(auth, (user) => {
               if (user) {
                   userId = user.uid;
                   console.log("Usuario autenticado. UID:", userId);
-                  setupFactura();
-                  setupVentasListener();
               } else {
-                  // Si no hay token inicial, usa un ID aleatorio y solo permite acceso privado
                   userId = crypto.randomUUID();
                   console.log("Sesión anónima o sin usuario. UID temporal:", userId);
-                  setupFactura();
               }
           });
       } catch (error) {
           console.error("Error al inicializar Firebase o autenticación:", error);
-          // Si falla Firebase, la factura aún puede mostrarse.
           setupFactura(); 
+          setupVentasListener(); // Asegurar que el listener intente arrancar incluso con error.
       }
   }
 
@@ -548,4 +548,5 @@
 </script>
 
 </body>
+
 </html>
