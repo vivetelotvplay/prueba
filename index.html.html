@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factura</title>
+    <style>
+        body { background: white; padding: 20px; max-width: 800px; margin: 0 auto; font-family: 'Courier New', monospace; font-size: 12px; color: #000; }
+        .receipt { box-shadow: none; padding: 10px; }
+        .receipt-header { text-align: center; margin-bottom: 10px; }
+        .receipt-header h2 { font-size: 16px; font-weight: bold; margin-bottom: 5px; }
+        .receipt-header p { margin: 2px 0; }
+        .receipt-divider { border-top: 1px dashed #000; margin: 10px 0; }
+        .receipt-info p { margin: 2px 0; }
+        .receipt-details .row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .receipt-title { text-align: center; font-weight: bold; text-decoration: underline; margin: 10px 0; text-transform: uppercase; }
+        .receipt-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        .receipt-table th { border-bottom: 1px solid #000; padding: 5px 0; font-weight: bold; text-transform: uppercase; font-size: 11px; }
+        .receipt-table td { padding: 5px 0; vertical-align: top; }
+        .receipt-totals .row { display: flex; justify-content: space-between; margin: 3px 0; }
+        .receipt-totals .total { font-weight: bold; font-size: 14px; margin-top: 5px; }
+        .receipt-signature { text-align: center; margin-top: 20px; }
+        .signature-line { border-bottom: 1px solid #000; width: 80%; margin: 30px auto 5px auto; }
+        .receipt-footer { text-align: center; margin-top: 20px; }
+        .receipt-footer p { margin: 2px 0; }
+        .warranty-text { font-size: 10px; text-align: justify; line-height: 1.2; }
+        .total-big { font-size: 22px; font-weight: bold; text-align: center; margin: 15px 0; }
+        .btn-print { display: block; width: 100%; padding: 12px; font-size: 16px; background: #2563eb; color: white; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 15px; }
+        @media print { .no-print { display: none !important; } @page { margin: 0; } }
+    </style>
+</head>
+<body>
+    <button class="btn-print no-print" onclick="window.print()">IMPRIMIR</button>
+
+    <div class="receipt" id="receipt">
+        <div class="receipt-header">
+            <h2>VIVELO TVG SRL</h2>
+            <p>San Vicente de Paul #112, Santo Domingo, Este</p>
+            <p>Tel: 829-905-0573 | RNC: 133261154</p>
+        </div>
+
+        <div class="receipt-divider"></div>
+
+        <div class="receipt-info">
+            <div style="display: flex; justify-content: space-between;">
+                <p><strong>NCF: <span id="r-ncf"></span></strong></p>
+                <p>Vence: 31/12/<span id="r-year"></span></p>
+            </div>
+        </div>
+
+        <div class="receipt-divider"></div>
+
+        <div class="receipt-details">
+            <div class="row">
+                <span><strong>FACTURA:</strong></span>
+                <span id="r-number"></span>
+            </div>
+            <div class="row">
+                <span><strong>CLIENTE:</strong></span>
+                <span id="r-client"></span>
+            </div>
+            <div class="row">
+                <span><strong>FECHA:</strong></span>
+                <span id="r-date"></span>
+            </div>
+        </div>
+
+        <div class="receipt-title" id="r-tipo"></div>
+
+        <div class="receipt-divider"></div>
+
+        <table class="receipt-table">
+            <thead>
+                <tr>
+                    <th style="text-align: left;">Descripcion</th>
+                    <th style="text-align: right;">P. Unit.</th>
+                    <th style="text-align: center;">Cant.</th>
+                    <th style="text-align: right;">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody id="r-items"></tbody>
+        </table>
+
+        <div class="receipt-divider"></div>
+
+        <div class="receipt-totals">
+            <div class="row">
+                <span>Subtotal:</span>
+                <span id="r-subtotal"></span>
+            </div>
+            <div class="row">
+                <span>ITBIS (18%):</span>
+                <span id="r-itbis"></span>
+            </div>
+            <div class="row total">
+                <span>TOTAL GENERAL:</span>
+                <span id="r-total"></span>
+            </div>
+        </div>
+
+        <div class="receipt-divider"></div>
+
+        <div class="total-big" id="r-total-big"></div>
+
+        <div class="receipt-signature">
+            <p>FIRMA DEL CLIENTE</p>
+            <div class="signature-line"></div>
+        </div>
+
+        <div class="receipt-footer">
+            <p style="font-weight: bold;">¡Gracias por su compra!</p>
+            <p class="warranty-text">
+                Todos nuestros artículos tienen garantía por 15 días para cambio. No puede estar mojado, desarmado, roto, rayado y debe tener los sellos de seguridad de la tienda.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Leer parámetros de la URL
+        const params = new URLSearchParams(window.location.search);
+
+        const ncf = params.get('ncf') || '';
+        const invoiceNumber = params.get('n') || '';
+        const client = params.get('c') || 'Consumidor Final';
+        const itemsStr = params.get('items') || '';
+        const subtotal = params.get('st') || '0.00';
+        const itbis = params.get('it') || '0.00';
+        const total = params.get('t') || '0.00';
+        const tipo = params.get('tipo') || 'FACTURA CONSUMIDOR FINAL';
+
+        // Fecha del día actual
+        const now = new Date();
+        const fecha = now.toLocaleDateString('es-DO', {
+            day: 'numeric', month: 'numeric', year: 'numeric'
+        }) + ' ' + now.toLocaleTimeString('es-DO', {
+            hour: '2-digit', minute: '2-digit', hour12: true
+        });
+
+        // Llenar datos
+        document.getElementById('r-ncf').textContent = ncf;
+        document.getElementById('r-year').textContent = now.getFullYear();
+        document.getElementById('r-number').textContent = invoiceNumber;
+        document.getElementById('r-client').textContent = client;
+        document.getElementById('r-date').textContent = fecha;
+        document.getElementById('r-tipo').textContent = tipo;
+        document.getElementById('r-subtotal').textContent = subtotal + ' RD$';
+        document.getElementById('r-itbis').textContent = itbis + ' RD$';
+        document.getElementById('r-total').textContent = total + ' RD$';
+        document.getElementById('r-total-big').textContent = 'TOTAL: ' + total + ' RD$';
+        document.title = 'Factura ' + invoiceNumber;
+
+        // Parsear items (formato: descripcion:precio:cantidad|descripcion:precio:cantidad)
+        const itemsBody = document.getElementById('r-items');
+        if (itemsStr) {
+            const items = itemsStr.split('|');
+            items.forEach(item => {
+                const parts = item.split(':');
+                if (parts.length >= 3) {
+                    const desc = parts[0];
+                    const price = parseFloat(parts[1]) || 0;
+                    const qty = parseInt(parts[2]) || 1;
+                    const sub = (price * qty).toFixed(2);
+
+                    const row = document.createElement('tr');
+                    row.innerHTML =
+                        '<td>' + desc + '</td>' +
+                        '<td style="text-align: right;">' + price.toFixed(2) + '</td>' +
+                        '<td style="text-align: center;">' + qty + '</td>' +
+                        '<td style="text-align: right;">' + sub + '</td>';
+                    itemsBody.appendChild(row);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
